@@ -45,7 +45,7 @@ export default function ReportPage() {
     return () => { cancelled = true; clearTimeout(timer); };
   }, [poll]);
 
-  const isLoading = data?.status === 'pending' || data?.status === 'running';
+  const isLoading = !data || data.status === 'pending' || data.status === 'running';
   const isFailed = data?.status === 'failed' || !!error;
   const isComplete = data?.status === 'complete';
 
