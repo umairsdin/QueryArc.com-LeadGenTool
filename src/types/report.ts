@@ -52,7 +52,8 @@ export interface ReportSummary {
 export interface RateMetric {
   percent: number;
   count: number;
-  total: number;
+  total?: number;
+  denom?: number;
 }
 
 export interface CompetitorVisibilityItem {
@@ -62,8 +63,10 @@ export interface CompetitorVisibilityItem {
 }
 
 export interface CompetitorPiggybackRate {
-  pct: number;
-  num: number;
+  percent?: number;
+  pct?: number;
+  count?: number;
+  num?: number;
   denom: number;
   top_rival?: {
     competitor: string;
@@ -93,7 +96,7 @@ export interface CompetitorPresenceCard {
   brand_question_id?: string;
   exclusion_applied?: boolean;
   eligible_answer_count?: number;
-  piggyback_overall: { pct: number; num: number; denom: number };
+  piggyback_overall: { pct?: number; num?: number; denom: number; percent?: number; count?: number };
   rows?: PiggybackRow[];
   top_rival?: { competitor: string; assistants_count: number; assistants_denom: number };
 }

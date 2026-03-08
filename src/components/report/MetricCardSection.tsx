@@ -33,17 +33,17 @@ export default function MetricCardSection({ report }: Props) {
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {sec.brand_visibility_card && (
+      {sec.brand_visibility_card !== false && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.4 }}>
           <VisibilityCard report={report} />
         </motion.div>
       )}
-      {sec.competitor_presence_card && (
+      {sec.competitor_presence_card !== false && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }}>
           <CompetitorCard report={report} />
         </motion.div>
       )}
-      {sec.open_opportunity_card && (
+      {sec.open_opportunity_card !== false && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.4 }}>
           <OpportunityCard report={report} />
         </motion.div>
@@ -82,7 +82,7 @@ function VisibilityCard({ report }: { report: CanonicalReport }) {
             {vr.percent}%
           </div>
           <p className="mt-1.5 text-xs text-muted-foreground">
-            {vr.count} of {vr.total} answers mention {report.input.brand_name}
+            {vr.count} of {vr.denom ?? vr.total} answers mention {report.input.brand_name}
           </p>
         </div>
 
@@ -129,7 +129,9 @@ function CompetitorCard({ report }: { report: CanonicalReport }) {
   const overall = cp?.piggyback_overall ?? fallback;
   if (!overall) return null;
 
-  const pct = Math.round(overall.pct * 100);
+  // API may send percent (already 0-100) or pct (0-1 fraction)
+  const pct = overall.percent != null ? Math.round(overall.percent) : Math.round((overall.pct ?? 0) * 100);
+  const count = overall.count ?? overall.num ?? 0;
   const topRival = cp?.top_rival ?? fallback?.top_rival;
   const rows = cp?.rows ?? fallback?.rows;
 
@@ -154,7 +156,7 @@ function CompetitorCard({ report }: { report: CanonicalReport }) {
             {pct}%
           </div>
           <p className="mt-1.5 text-xs text-muted-foreground">
-            {overall.num} of {overall.denom} eligible answers include a competitor
+            {count} of {overall.denom} eligible answers include a competitor
           </p>
         </div>
 
@@ -181,13 +183,14 @@ function CompetitorCard({ report }: { report: CanonicalReport }) {
               <div key={i} className="text-xs">
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-foreground">{row.model}</span>
-                  <span className="text-muted-foreground tabular-nums">{Math.round(row.piggyback_pct * 100)}%</span>
+                  <span className="text-muted-foreground tabular-nums">{row.piggyback_pct > 1 ? Math.round(row.piggyback_pct) : Math.round(row.piggyback_pct * 100)}%</span>
                 </div>
                 {Object.entries(row.competitor_pct).some(([, v]) => v > 0) && (
                   <div className="mt-0.5 flex flex-wrap gap-1.5 text-muted-foreground">
-                    {Object.entries(row.competitor_pct).filter(([, v]) => v > 0).map(([name, val]) => (
-                      <span key={name} className="rounded bg-muted px-1.5 py-0.5">{name}: {Math.round((val as number) * 100)}%</span>
-                    ))}
+                    {Object.entries(row.competitor_pct).filter(([, v]) => v > 0).map(([name, val]) => {
+                      const v = val as number;
+                      return <span key={name} className="rounded bg-muted px-1.5 py-0.5">{name}: {v > 1 ? Math.round(v) : Math.round(v * 100)}%</span>;
+                    })}
                   </div>
                 )}
               </div>
@@ -228,7 +231,7 @@ function OpportunityCard({ report }: { report: CanonicalReport }) {
             {or.percent}%
           </div>
           <p className="mt-1.5 text-xs text-muted-foreground">
-            {or.count} of {or.total} answers mention no brand
+            {or.count} of {or.denom ?? or.total} answers mention no brand
           </p>
         </div>
 

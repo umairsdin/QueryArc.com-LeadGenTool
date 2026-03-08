@@ -94,21 +94,21 @@ export default function ReportPage() {
               {/* Metric cards */}
               <MetricCardSection report={report} />
 
-              {/* What this means */}
-              {sec?.what_this_means && report.narratives?.what_this_means && (
+              {/* What this means — show if section gate is true OR not explicitly false and data exists */}
+              {sec?.what_this_means !== false && report.narratives?.what_this_means && (
                 <WhatThisMeansSection data={report.narratives.what_this_means} />
               )}
 
-              {/* CTA / Action block */}
-              {(sec?.primary_cta || sec?.final_cta) && report.narratives?.action_oriented && (
+              {/* CTA / Action block — show if section gate allows and data exists */}
+              {(sec?.primary_cta !== false || sec?.final_cta !== false) && report.narratives?.action_oriented && (
                 <ActionSectionBlock
                   action={report.narratives.action_oriented}
                   ctaSubline={report.narratives.cta_subline}
                 />
               )}
 
-              {/* Proof from snapshot */}
-              {sec?.proof_from_snapshot && (report.data?.questions || report.data?.model_answers) && (
+              {/* Proof from snapshot — show if not explicitly gated off and data exists */}
+              {sec?.proof_from_snapshot !== false && (report.data?.questions || report.data?.model_answers) && (
                 <ProofSection
                   questions={report.data.questions}
                   modelAnswers={report.data.model_answers}
