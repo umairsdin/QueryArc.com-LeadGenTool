@@ -10,7 +10,11 @@ export async function submitRun(payload: {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
-  if (!res.ok) throw new Error('Failed to submit run');
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    console.error('submitRun failed:', res.status, res.statusText, text);
+    throw new Error(`Failed to submit run: ${res.status} ${res.statusText}`);
+  }
   return res.json();
 }
 
