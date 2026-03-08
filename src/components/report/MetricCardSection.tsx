@@ -129,7 +129,9 @@ function CompetitorCard({ report }: { report: CanonicalReport }) {
   const overall = cp?.piggyback_overall ?? fallback;
   if (!overall) return null;
 
-  const pct = Math.round(overall.pct * 100);
+  // API may send percent (already 0-100) or pct (0-1 fraction)
+  const pct = overall.percent != null ? Math.round(overall.percent) : Math.round((overall.pct ?? 0) * 100);
+  const count = overall.count ?? overall.num ?? 0;
   const topRival = cp?.top_rival ?? fallback?.top_rival;
   const rows = cp?.rows ?? fallback?.rows;
 
