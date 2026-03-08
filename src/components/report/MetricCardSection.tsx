@@ -230,7 +230,7 @@ function OpportunityCard({ report }: { report: CanonicalReport }) {
             {or.percent}%
           </div>
           <p className="mt-1.5 text-xs text-muted-foreground">
-            {or.count} of {or.total} answers mention no brand
+            {or.count} of {or.denom ?? or.total} answers mention no brand
           </p>
         </div>
 

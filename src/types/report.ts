@@ -63,8 +63,10 @@ export interface CompetitorVisibilityItem {
 }
 
 export interface CompetitorPiggybackRate {
-  pct: number;
-  num: number;
+  percent?: number;
+  pct?: number;
+  count?: number;
+  num?: number;
   denom: number;
   top_rival?: {
     competitor: string;
