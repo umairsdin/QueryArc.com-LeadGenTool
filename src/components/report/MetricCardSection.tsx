@@ -191,7 +191,6 @@ function CompetitorCard({ report }: { report: CanonicalReport }) {
                       const v = val as number;
                       return <span key={name} className="rounded bg-muted px-1.5 py-0.5">{name}: {v > 1 ? Math.round(v) : Math.round(v * 100)}%</span>;
                     })}
-                    ))}
                   </div>
                 )}
               </div>
