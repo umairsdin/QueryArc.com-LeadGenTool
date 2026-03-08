@@ -1,4 +1,4 @@
-const API_BASE = 'https://mini-audit-api.queryarc.com';
+const API_BASE = 'https://queryarc-mini-audit-production.up.railway.app';
 
 export async function submitRun(payload: {
   brand_name: string;
