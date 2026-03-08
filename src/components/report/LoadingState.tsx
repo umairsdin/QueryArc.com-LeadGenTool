@@ -8,14 +8,23 @@ const STEPS = [
 ];
 
 interface Props {
-  status?: string;
+  reportState?: string;
+  stageLabel?: string;
+  message?: string;
 }
 
-export default function LoadingState({ status }: Props) {
-  const activeIndex = status === 'processing' ? 1 : 0;
+export default function LoadingState({ reportState, stageLabel, message }: Props) {
+  // Use progress.stage_label if available, otherwise infer from report_state
+  const activeIndex = reportState === 'processing' ? 1 : 0;
 
   return (
     <div className="card-surface p-7">
+      {stageLabel && (
+        <p className="mb-4 text-sm font-medium text-foreground">{stageLabel}</p>
+      )}
+      {message && (
+        <p className="mb-4 text-xs text-muted-foreground">{message}</p>
+      )}
       <ul className="space-y-3.5">
         {STEPS.map((step, i) => (
           <motion.li
