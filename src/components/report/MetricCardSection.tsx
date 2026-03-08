@@ -82,7 +82,7 @@ function VisibilityCard({ report }: { report: CanonicalReport }) {
             {vr.percent}%
           </div>
           <p className="mt-1.5 text-xs text-muted-foreground">
-            {vr.count} of {vr.total} answers mention {report.input.brand_name}
+            {vr.count} of {vr.denom ?? vr.total} answers mention {report.input.brand_name}
           </p>
         </div>
 
