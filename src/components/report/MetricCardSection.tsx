@@ -2,44 +2,47 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Eye, Users, Target } from 'lucide-react';
 import {
-  ReportMetrics, ReportSections, CompetitorVisibilityItem,
-  PiggybackRow, OpportunityEvent
+  CanonicalReport, CompetitorVisibilityItem,
+  PiggybackRow, OpportunityEvent, CompetitorPresenceCard
 } from '@/types/report';
 
 interface Props {
-  metrics: ReportMetrics;
-  sections: ReportSections;
-  brandName: string;
-  topInsight?: string;
-  opportunityEvents?: OpportunityEvent[];
+  report: CanonicalReport;
 }
 
-export default function MetricCardSection({ metrics, sections, brandName, topInsight, opportunityEvents }: Props) {
+export default function MetricCardSection({ report }: Props) {
+  const sec = report.sections;
+
   return (
     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      {sections.show_visibility_card !== false && (
+      {sec.brand_visibility_card && (
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}>
-          <VisibilityCard metrics={metrics} brandName={brandName} topInsight={topInsight} />
+          <VisibilityCard report={report} />
         </motion.div>
       )}
-      {sections.show_competitor_card && (
+      {sec.competitor_presence_card && (
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
-          <CompetitorCard metrics={metrics} />
+          <CompetitorCard report={report} />
         </motion.div>
       )}
-      {sections.show_opportunity_card && (
+      {sec.open_opportunity_card && (
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }}>
-          <OpportunityCard metrics={metrics} opportunityEvents={opportunityEvents} />
+          <OpportunityCard report={report} />
         </motion.div>
       )}
     </div>
   );
 }
 
-function VisibilityCard({ metrics, brandName, topInsight }: { metrics: ReportMetrics; brandName: string; topInsight?: string }) {
+// --- Card 1: Brand Visibility ---
+// Driven by: metrics.visibility_rate, metrics.competitor_visibility, narratives.top_insight
+function VisibilityCard({ report }: { report: CanonicalReport }) {
   const [expanded, setExpanded] = useState(false);
-  const vr = metrics.visibility_rate;
-  const cv = metrics.competitor_visibility;
+  const vr = report.metrics?.visibility_rate;
+  const cv = report.metrics?.competitor_visibility;
+  const topInsight = report.narratives?.top_insight;
+
+  if (!vr) return null;
 
   return (
     <div className="card-surface flex h-full flex-col p-5">
@@ -51,7 +54,9 @@ function VisibilityCard({ metrics, brandName, topInsight }: { metrics: ReportMet
 
       <div className="mt-4">
         <div className="metric-large">{vr.percent}%</div>
-        <div className="mt-1 text-xs text-muted-foreground">{vr.count} of {vr.total} answers mention {brandName}</div>
+        <div className="mt-1 text-xs text-muted-foreground">
+          {vr.count} of {vr.total} answers mention {report.input.brand_name}
+        </div>
       </div>
 
       {topInsight && (
@@ -74,12 +79,21 @@ function VisibilityCard({ metrics, brandName, topInsight }: { metrics: ReportMet
   );
 }
 
-function CompetitorCard({ metrics }: { metrics: ReportMetrics }) {
+// --- Card 2: Competitor Presence ---
+// Driven by: data.competitor_presence_card, metrics.competitor_piggyback_rate
+function CompetitorCard({ report }: { report: CanonicalReport }) {
   const [expanded, setExpanded] = useState(false);
-  const cp = metrics.competitor_piggyback_rate;
-  if (!cp) return null;
+  // Primary source: data.competitor_presence_card
+  const cp: CompetitorPresenceCard | undefined = report.data?.competitor_presence_card as CompetitorPresenceCard | undefined;
+  // Fallback: metrics.competitor_piggyback_rate
+  const fallback = report.metrics?.competitor_piggyback_rate;
 
-  const pct = Math.round(cp.pct * 100);
+  const overall = cp?.piggyback_overall ?? fallback;
+  if (!overall) return null;
+
+  const pct = Math.round(overall.pct * 100);
+  const topRival = cp?.top_rival ?? fallback?.top_rival;
+  const rows = cp?.rows ?? fallback?.rows;
 
   return (
     <div className="card-surface flex h-full flex-col p-5">
@@ -92,19 +106,19 @@ function CompetitorCard({ metrics }: { metrics: ReportMetrics }) {
       <div className="mt-4">
         <div className="metric-large">{pct}%</div>
         <div className="mt-1 text-xs text-muted-foreground">
-          {cp.num} of {cp.denom} eligible answers include a competitor
+          {overall.num} of {overall.denom} eligible answers include a competitor
         </div>
       </div>
 
-      {cp.top_rival && (
+      {topRival && (
         <p className="mt-3 rounded-md border border-border px-3 py-2 text-xs leading-relaxed text-muted-foreground">
-          Top rival: <span className="font-medium text-foreground">{cp.top_rival.competitor}</span> — appears in {cp.top_rival.assistants_count} of {cp.top_rival.assistants_denom} assistants
+          Top rival: <span className="font-medium text-foreground">{topRival.competitor}</span> — appears in {topRival.assistants_count} of {topRival.assistants_denom} assistants
         </p>
       )}
 
-      {cp.rows && cp.rows.length > 0 && (
+      {rows && rows.length > 0 && (
         <ExpandableDetails expanded={expanded} onToggle={() => setExpanded(!expanded)} label="model breakdown">
-          {cp.rows.map((row: PiggybackRow, i: number) => (
+          {rows.map((row: PiggybackRow, i: number) => (
             <div key={i} className="text-xs">
               <div className="flex items-center justify-between">
                 <span className="font-medium text-foreground">{row.model}</span>
@@ -125,9 +139,16 @@ function CompetitorCard({ metrics }: { metrics: ReportMetrics }) {
   );
 }
 
-function OpportunityCard({ metrics, opportunityEvents }: { metrics: ReportMetrics; opportunityEvents?: OpportunityEvent[] }) {
+// --- Card 3: Open Opportunity ---
+// Driven by: metrics.open_opportunity_rate, data.opportunity_events, data.opportunity_model_breakdown
+function OpportunityCard({ report }: { report: CanonicalReport }) {
   const [expanded, setExpanded] = useState(false);
-  const or = metrics.open_opportunity_rate;
+  const or = report.metrics?.open_opportunity_rate;
+  const events = report.data?.opportunity_events;
+  const breakdown = report.data?.opportunity_model_breakdown as Record<string, number> | undefined
+    ?? report.metrics?.opportunity_model_breakdown;
+
+  if (!or) return null;
 
   return (
     <div className="card-surface flex h-full flex-col p-5">
@@ -142,19 +163,19 @@ function OpportunityCard({ metrics, opportunityEvents }: { metrics: ReportMetric
         <div className="mt-1 text-xs text-muted-foreground">{or.count} of {or.total} answers mention no brand</div>
       </div>
 
-      {(metrics.opportunity_model_breakdown || opportunityEvents) && (
+      {(breakdown || events) && (
         <ExpandableDetails expanded={expanded} onToggle={() => setExpanded(!expanded)} label="model breakdown">
-          {metrics.opportunity_model_breakdown && Object.entries(metrics.opportunity_model_breakdown).map(([model, count]) => (
+          {breakdown && Object.entries(breakdown).map(([model, count]) => (
             <div key={model} className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">{model}</span>
               <span className="font-medium text-foreground">{count as number} open</span>
             </div>
           ))}
 
-          {opportunityEvents && opportunityEvents.length > 0 && (
+          {events && events.length > 0 && (
             <div className="mt-2 space-y-2 border-t border-border pt-2">
               <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Open answers</p>
-              {opportunityEvents.map((ev, i) => (
+              {events.map((ev: OpportunityEvent, i: number) => (
                 <div key={i} className="rounded-md border border-border p-2.5 text-xs">
                   <div className="font-medium text-foreground">{ev.model}</div>
                   <p className="mt-0.5 text-muted-foreground line-clamp-2">{ev.buyer_label}</p>
@@ -168,6 +189,7 @@ function OpportunityCard({ metrics, opportunityEvents }: { metrics: ReportMetric
   );
 }
 
+// --- Shared expandable wrapper ---
 function ExpandableDetails({ expanded, onToggle, label, children }: {
   expanded: boolean;
   onToggle: () => void;

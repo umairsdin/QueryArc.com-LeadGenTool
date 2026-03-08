@@ -1,11 +1,11 @@
-// Canonical API response types — matches GET /api/run/{run_id}
+// Canonical API response types — GET /api/run/{run_id}
 
 export interface CanonicalReport {
   schema_version: string;
-  report_state: 'queued' | 'processing' | 'completed' | 'failed' | 'partial';
-  status: string;
+  report_state: 'queued' | 'processing' | 'partial' | 'completed' | 'failed';
+  status: string; // legacy display state
   readiness: Readiness;
-  run: { id: string };
+  run: RunMeta;
   input: ReportInput;
   progress: ReportProgress;
   summary: ReportSummary;
@@ -15,12 +15,18 @@ export interface CanonicalReport {
   data: ReportDataPayload;
   narratives: ReportNarratives;
   errors: ReportErrors;
-  field_contract: unknown;
+  field_contract?: unknown;
 }
 
 export interface Readiness {
   is_terminal: boolean;
   is_ready_for_render: boolean;
+}
+
+export interface RunMeta {
+  id: string;
+  error_message?: string;
+  [key: string]: unknown;
 }
 
 export interface ReportInput {
@@ -30,7 +36,8 @@ export interface ReportInput {
 }
 
 export interface ReportProgress {
-  models_attempted?: string[];
+  stage_label?: string;
+  message?: string;
   [key: string]: unknown;
 }
 
@@ -82,14 +89,26 @@ export interface ReportMetrics {
   [key: string]: unknown;
 }
 
+export interface CompetitorPresenceCard {
+  brand_question_id?: string;
+  exclusion_applied?: boolean;
+  eligible_answer_count?: number;
+  piggyback_overall: { pct: number; num: number; denom: number };
+  rows?: PiggybackRow[];
+  top_rival?: { competitor: string; assistants_count: number; assistants_denom: number };
+}
+
 export interface ReportSections {
-  show_visibility_card: boolean;
-  show_competitor_card: boolean;
-  show_opportunity_card: boolean;
-  show_what_this_means: boolean;
-  show_action_block: boolean;
-  show_proof: boolean;
-  [key: string]: boolean;
+  header?: boolean;
+  progress?: boolean;
+  brand_visibility_card?: boolean;
+  competitor_presence_card?: boolean;
+  open_opportunity_card?: boolean;
+  what_this_means?: boolean;
+  proof_from_snapshot?: boolean;
+  primary_cta?: boolean;
+  final_cta?: boolean;
+  [key: string]: boolean | undefined;
 }
 
 export interface EvidenceResource {
@@ -126,18 +145,20 @@ export interface ModelAnswerGroup {
   answers: ModelAnswerEntry[];
 }
 
-export interface ReportDataPayload {
-  questions?: string[];
-  model_answers?: ModelAnswerGroup[];
-  opportunity_events?: OpportunityEvent[];
-  [key: string]: unknown;
-}
-
 export interface OpportunityEvent {
   buyer_label: string;
   buyer_question: string;
   model: string;
   answer_text: string;
+}
+
+export interface ReportDataPayload {
+  questions?: string[];
+  model_answers?: ModelAnswerGroup[];
+  opportunity_events?: OpportunityEvent[];
+  opportunity_model_breakdown?: Record<string, number>;
+  competitor_presence_card?: CompetitorPresenceCard;
+  [key: string]: unknown;
 }
 
 export interface WhatThisMeans {

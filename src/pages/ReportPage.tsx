@@ -38,7 +38,7 @@ export default function ReportPage() {
     const doPoll = async () => {
       const result = await poll();
       if (cancelled) return;
-      // Keep polling until readiness.is_terminal
+      // Rule 2: stop polling when readiness.is_terminal === true
       if (result && !result.readiness?.is_terminal) {
         timer = setTimeout(doPoll, 3000);
       }
@@ -48,56 +48,67 @@ export default function ReportPage() {
     return () => { cancelled = true; clearTimeout(timer); };
   }, [poll]);
 
-  const isLoading = !report || ['queued', 'processing'].includes(report.report_state);
-  const isFailed = report?.report_state === 'failed' || !!error;
+  // Rule 1: report_state is the primary lifecycle field
+  const reportState = report?.report_state;
+  const isLoading = !report || reportState === 'queued' || reportState === 'processing';
+  const isFailed = reportState === 'failed' || !!error;
+  // Rule 3: render only when readiness.is_ready_for_render === true
   const canRender = report?.readiness?.is_ready_for_render === true;
-  const sections = report?.sections;
+  // Rule 5: sections.* as authoritative render gate
+  const sec = report?.sections;
 
   return (
     <div className="min-h-screen">
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
-        <ReportHeader report={report} />
+        {/* Header: gated by sections.header */}
+        {(!sec || sec.header !== false) && (
+          <ReportHeader report={report} />
+        )}
 
         <AnimatePresence mode="wait">
-          {isLoading && !isFailed && (
+          {/* Progress block: gated by sections.progress, shown while loading */}
+          {isLoading && !isFailed && (!sec || sec.progress !== false) && (
             <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <LoadingState status={report?.report_state} />
+              <LoadingState
+                reportState={reportState}
+                stageLabel={report?.progress?.stage_label}
+                message={report?.progress?.message}
+              />
             </motion.div>
           )}
 
+          {/* Failed state: Rule 7 */}
           {isFailed && (
             <motion.div key="failed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <FailedState
-                message={error || report?.errors?.message || 'Run failed.'}
+                message={error || report?.run?.error_message || report?.errors?.message || 'Run failed.'}
+                code={report?.errors?.code}
                 onBack={() => navigate('/ai-visibility')}
               />
             </motion.div>
           )}
 
+          {/* Main report: Rule 3 + Rule 6 for partial */}
           {canRender && report && (
             <motion.div key="complete" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              {sections?.show_visibility_card !== false && report.metrics && (
-                <MetricCardSection
-                  metrics={report.metrics}
-                  sections={sections!}
-                  brandName={report.input.brand_name}
-                  topInsight={report.narratives?.top_insight}
-                  opportunityEvents={report.data?.opportunity_events}
-                />
-              )}
+              {/* Metric cards */}
+              <MetricCardSection report={report} />
 
-              {sections?.show_what_this_means && report.narratives?.what_this_means && (
+              {/* What this means */}
+              {sec?.what_this_means && report.narratives?.what_this_means && (
                 <WhatThisMeansSection data={report.narratives.what_this_means} />
               )}
 
-              {sections?.show_action_block && report.narratives?.action_oriented && (
+              {/* CTA / Action block */}
+              {(sec?.primary_cta || sec?.final_cta) && report.narratives?.action_oriented && (
                 <ActionSectionBlock
                   action={report.narratives.action_oriented}
                   ctaSubline={report.narratives.cta_subline}
                 />
               )}
 
-              {sections?.show_proof && (report.data?.questions || report.data?.model_answers) && (
+              {/* Proof from snapshot */}
+              {sec?.proof_from_snapshot && (report.data?.questions || report.data?.model_answers) && (
                 <ProofSection
                   questions={report.data.questions}
                   modelAnswers={report.data.model_answers}
