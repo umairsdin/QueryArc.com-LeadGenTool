@@ -49,10 +49,14 @@ export default function AIVisibilityPage() {
     setLoading(true);
     try {
       const comps = competitors.split(',').map(c => c.trim()).filter(Boolean);
-      const { run_id } = await submitRun({ brand_name: brandName, website, competitors: comps });
+      const payload = { brand_name: brandName, website, competitors: comps };
+      console.log('Submitting payload:', JSON.stringify(payload));
+      const { run_id } = await submitRun(payload);
+      console.log('Got run_id:', run_id);
       navigate(`/report/${run_id}`);
-    } catch {
-      setErrors({ submit: 'Something went wrong. Please try again.' });
+    } catch (err) {
+      console.error('Form submission error:', err);
+      setErrors({ submit: `Something went wrong: ${err instanceof Error ? err.message : 'Unknown error'}` });
     } finally {
       setLoading(false);
     }
