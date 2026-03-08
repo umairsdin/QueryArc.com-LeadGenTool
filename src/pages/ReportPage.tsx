@@ -45,7 +45,7 @@ export default function ReportPage() {
     return () => { cancelled = true; clearTimeout(timer); };
   }, [poll]);
 
-  const isLoading = data?.status === 'pending' || data?.status === 'running';
+  const isLoading = !data || data.status === 'pending' || data.status === 'running';
   const isFailed = data?.status === 'failed' || !!error;
   const isComplete = data?.status === 'complete';
 
@@ -55,7 +55,7 @@ export default function ReportPage() {
         <ReportHeader data={data} />
 
         <AnimatePresence mode="wait">
-          {isLoading && !error && (
+          {isLoading && !isFailed && (
             <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <LoadingState status={data?.status} />
             </motion.div>
