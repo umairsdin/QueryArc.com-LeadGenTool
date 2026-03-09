@@ -17,6 +17,11 @@ export default function ReportHeader({ report }: Props) {
       transition={{ duration: 0.5 }}
       className="mb-10"
     >
+      <div className="flex items-center gap-2.5 mb-6">
+        <QueryArcLogo />
+        <span className="font-bold text-lg text-foreground">QueryArc</span>
+      </div>
+
       <div className="flex items-center gap-3 mb-3">
         <div className="h-8 w-1 rounded-full bg-primary" />
         <span className="text-xs font-semibold uppercase tracking-[0.15em] text-primary">
