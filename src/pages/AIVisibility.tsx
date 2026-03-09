@@ -201,10 +201,8 @@ export default function AIVisibilityPage() {
                       <img
                         src={m.logo}
                         alt={`${m.name} logo`}
-                        className="h-6 w-6"
-                        onError={e => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden'); }}
+                        className="h-7 w-7 object-contain"
                       />
-                      <span className="hidden rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">{m.fallback}</span>
                       <span className="text-[11px] text-muted-foreground">{m.name}</span>
                     </div>
                   ))}
