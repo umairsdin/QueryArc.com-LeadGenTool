@@ -7,7 +7,7 @@ interface Props {
 
 export default function FinalCtaSection({ ctaSubline }: Props) {
   const handleCtaClick = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.location.href = 'https://queryarc.com/pricing';
   };
 
   return (
@@ -18,24 +18,24 @@ export default function FinalCtaSection({ ctaSubline }: Props) {
       className="mt-8 overflow-hidden rounded-2xl border border-border bg-secondary text-center p-8 sm:p-12"
     >
       <h3 className="text-2xl font-bold text-foreground sm:text-3xl">
-        Convert this snapshot into fixes.
+        If this free audit shows a gap, choose the right next step.
       </h3>
       <p className="mx-auto mt-3 max-w-lg text-base text-muted-foreground leading-relaxed">
-        Get the full audit with 10+ prompts, multiple LLMs, reruns, and copy-ready action items.
+        Move next to the Pricing page to choose an AI Visibility Diagnostic for clarity, a Growth Blueprint for the exact fix plan, or a Sprint if you want QueryArc to implement the work.
       </p>
       <button
         onClick={handleCtaClick}
         className="btn-primary mt-6 inline-flex items-center gap-2.5 px-8 py-3.5"
       >
         <Lock className="h-4 w-4" />
-        Get my full audit + fix plan
+        See pricing and next steps
         <ArrowRight className="h-4 w-4" />
       </button>
       {ctaSubline && (
         <p className="mt-4 text-sm text-muted-foreground">{ctaSubline}</p>
       )}
       <p className="mt-3 text-xs text-muted-foreground/70">
-        10+ prompts · 2 major LLMs · reruns · copy-ready outputs
+        Free audit first · Pricing second · No calls required
       </p>
     </motion.div>
   );
