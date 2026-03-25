@@ -31,7 +31,7 @@ export default function FailedState({ message, code, onBack, onRetry }: Props) {
           className={`${onRetry ? 'btn-outline' : 'btn-primary'} inline-flex items-center gap-2 px-5 py-2.5`}
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to AI Visibility
+          Back to free audit
         </button>
       </div>
     </div>

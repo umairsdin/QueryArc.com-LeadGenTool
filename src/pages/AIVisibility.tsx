@@ -79,7 +79,7 @@ export default function AIVisibilityPage() {
         >
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-medium text-primary">
             <Zap className="h-4 w-4" />
-            Instant AI visibility snapshot
+            Free AI visibility audit
           </div>
           <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
             Your buyers may already be
@@ -101,9 +101,9 @@ export default function AIVisibilityPage() {
             className="lg:col-span-2"
           >
             <div className="card-surface-elevated p-6 sm:p-8">
-              <h2 className="text-xl font-bold text-foreground">Check your AI visibility</h2>
+              <h2 className="text-xl font-bold text-foreground">Run your free AI visibility audit</h2>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                See how 5 AI assistants talk about your brand to buyers.
+                See how 5 AI assistants talk about your brand to buyers, then use the report to decide whether you need the QueryArc Diagnostic or Growth Blueprint.
               </p>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -170,7 +170,7 @@ export default function AIVisibilityPage() {
                     </span>
                   ) : (
                     <>
-                      Get my AI visibility snapshot
+                      Run my free AI visibility audit
                       <ArrowRight className="h-4 w-4" />
                     </>
                   )}
@@ -245,7 +245,7 @@ export default function AIVisibilityPage() {
               transition={{ delay: 0.65 }}
               className="card-surface p-5 sm:p-6"
             >
-              <h3 className="text-sm font-semibold text-foreground mb-3">What your snapshot includes</h3>
+              <h3 className="text-sm font-semibold text-foreground mb-3">What your free audit includes</h3>
               <div className="overflow-hidden rounded-lg border border-border">
                 {[
                   { label: 'AI Visibility', value: '44%', color: 'text-metric-amber' },
@@ -263,7 +263,7 @@ export default function AIVisibilityPage() {
                 ))}
               </div>
               <p className="mt-3 text-xs text-muted-foreground">
-                Plus competitor visibility breakdown, model-by-model answers, open opportunities, and actionable next steps.
+                Plus competitor visibility breakdown, model-by-model answers, open opportunities, and clear next-step guidance if you need the Diagnostic or Growth Blueprint.
               </p>
             </motion.div>
           </motion.div>

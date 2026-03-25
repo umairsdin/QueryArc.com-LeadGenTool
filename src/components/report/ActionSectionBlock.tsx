@@ -9,7 +9,7 @@ interface Props {
 
 export default function ActionSectionBlock({ action, ctaSubline }: Props) {
   const handleCtaClick = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.location.href = 'https://queryarc.com/pricing';
   };
 
   return (
@@ -33,13 +33,13 @@ export default function ActionSectionBlock({ action, ctaSubline }: Props) {
             className="mt-6 inline-flex items-center gap-2.5 rounded-xl bg-primary-foreground px-6 py-3 text-sm font-bold text-primary transition-all hover:bg-primary-foreground/90 hover:shadow-lg active:scale-[0.98]"
           >
             <Lock className="h-4 w-4" />
-            Get my full audit + fix plan
+            See pricing and next steps
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>
 
         <div className="p-6 sm:col-span-2 sm:p-8">
-          <h4 className="text-xs font-bold uppercase tracking-widest text-primary-foreground/70">What the audit covers</h4>
+          <h4 className="text-xs font-bold uppercase tracking-widest text-primary-foreground/70">What the paid next step covers</h4>
           {action.bullets && (
             <ul className="mt-5 space-y-3">
               {action.bullets.map((b, i) => (
