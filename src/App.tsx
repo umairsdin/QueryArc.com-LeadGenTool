@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AIVisibilityPage from "./pages/AIVisibility";
+import AboutPage from "./pages/About";
 import ReportPage from "./pages/ReportPage";
 import NotFound from "./pages/NotFound";
 
@@ -18,6 +19,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Navigate to="/ai-visibility" replace />} />
           <Route path="/ai-visibility" element={<AIVisibilityPage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="/report/:run_id" element={<ReportPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
