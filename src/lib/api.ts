@@ -19,8 +19,9 @@ export async function submitRun(payload: {
 }
 
 export async function fetchRun(runId: string) {
-  console.log('Fetching run:', `${API_BASE}/api/run/${runId}`);
-  const res = await fetch(`${API_BASE}/api/run/${runId}`);
+  const runUrl = `${API_BASE}/api/run/${runId}?t=${Date.now()}`;
+  console.log('Fetching run:', runUrl);
+  const res = await fetch(runUrl, { cache: 'no-store' });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
     console.error('fetchRun failed:', res.status, res.statusText, text);
