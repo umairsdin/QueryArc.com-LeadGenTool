@@ -1,13 +1,7 @@
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { Loader2 } from 'lucide-react';
-
-const LLM_MODELS = [
-  { name: 'ChatGPT', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg', fallback: 'GPT' },
-  { name: 'Claude', logo: 'https://cdn.simpleicons.org/anthropic/6366f1', fallback: 'CLD' },
-  { name: 'Gemini', logo: 'https://cdn.simpleicons.org/googlegemini/6366f1', fallback: 'GEM' },
-  { name: 'Perplexity', logo: 'https://cdn.simpleicons.org/perplexity/6366f1', fallback: 'PPX' },
-  { name: 'Grok', logo: 'https://cdn.simpleicons.org/x/6366f1', fallback: 'GRK' },
-];
+import { llmModels } from '@/lib/llm-models';
 
 const STEPS = [
   'Generating buyer questions',
@@ -42,7 +36,7 @@ export default function LoadingState({ reportState, stageLabel, message }: Props
           Querying AI platforms
         </p>
         <div className="flex items-center justify-between gap-3">
-          {LLM_MODELS.map((m, i) => (
+          {llmModels.map((m, i) => (
             <motion.div
               key={m.name}
               initial={{ opacity: 0, scale: 0.8 }}
@@ -65,13 +59,11 @@ export default function LoadingState({ reportState, stageLabel, message }: Props
                     : 'border-border bg-secondary/50'
                 }`}
               >
-                <img
+                <Image
                   src={m.logo}
                   alt={`${m.name} logo`}
-                  className="h-6 w-6"
-                  onError={e => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden'); }}
+                  className="h-6 w-6 object-contain"
                 />
-                <span className="hidden text-xs font-bold text-primary">{m.fallback}</span>
               </motion.div>
               <span className="text-[11px] font-medium text-muted-foreground">{m.name}</span>
             </motion.div>

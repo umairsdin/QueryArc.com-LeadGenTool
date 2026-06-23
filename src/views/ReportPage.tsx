@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect, useState, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchRun } from '@/lib/api';
 import { CanonicalReport } from '@/types/report';
@@ -13,16 +15,15 @@ import ProofSection from '@/components/report/ProofSection';
 import EmailCaptureBar from '@/components/report/EmailCaptureBar';
 import FinalCtaSection from '@/components/report/FinalCtaSection';
 
-export default function ReportPage() {
-  const { run_id } = useParams<{ run_id: string }>();
-  const navigate = useNavigate();
+export default function ReportPage({ runId }: { runId: string }) {
+  const router = useRouter();
   const [report, setReport] = useState<CanonicalReport | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const poll = useCallback(async () => {
-    if (!run_id) return;
+    if (!runId) return;
     try {
-      const result = await fetchRun(run_id);
+      const result = await fetchRun(runId);
       console.log('Canonical response:', result.report_state, result.readiness);
       setReport(result);
       setError(null);
@@ -32,7 +33,7 @@ export default function ReportPage() {
       setError('Failed to load report.');
       return null;
     }
-  }, [run_id]);
+  }, [runId]);
 
   const startPolling = useCallback(() => {
     let timer: ReturnType<typeof setTimeout>;
@@ -91,7 +92,7 @@ export default function ReportPage() {
               <FailedState
                 message={error || report?.run?.error_message || report?.errors?.message || 'Run failed.'}
                 code={report?.errors?.code}
-                onBack={() => navigate('/ai-visibility')}
+                onBack={() => router.push('/ai-visibility/')}
                 onRetry={handleRetry}
               />
             </motion.div>
@@ -124,7 +125,7 @@ export default function ReportPage() {
                 <>
                   <EmailCaptureBar
                     brand={report.input.brand_name}
-                    reportId={run_id || report.run.id}
+                    reportId={runId || report.run.id}
                   />
                   <FinalCtaSection
                     brand={report.input.brand_name}

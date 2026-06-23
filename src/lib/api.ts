@@ -1,4 +1,6 @@
-const API_BASE = 'https://queryarc-mini-audit-production.up.railway.app';
+const API_BASE = (
+  process.env.NEXT_PUBLIC_QUERYARC_API_URL || 'https://queryarc-mini-audit-production.up.railway.app'
+).replace(/\/+$/, '');
 
 export async function submitRun(payload: {
   brand_name: string;

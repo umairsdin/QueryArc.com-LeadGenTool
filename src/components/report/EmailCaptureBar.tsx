@@ -68,7 +68,7 @@ export default function EmailCaptureBar({ brand, reportId }: EmailCaptureBarProp
                 Save this report + get a 3-tip fix guide for {brand}
               </p>
               <p className="text-xs text-muted-foreground mb-3">
-                We'll email your report + 3 fix tips. No spam, unsubscribe any time.
+                We&apos;ll email your report + 3 fix tips. No spam, unsubscribe any time.
               </p>
               <div className="flex items-center gap-2">
                 <input

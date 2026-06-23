@@ -1,17 +1,14 @@
+"use client";
+
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ArrowRight, Eye, Users, Target, Shield, Zap, CheckCircle } from 'lucide-react';
 import { submitRun } from '@/lib/api';
 import QueryArcLogo from '@/components/shared/QueryArcLogo';
-
-const AI_MODELS = [
-  { name: 'ChatGPT', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg', fallback: 'GPT' },
-  { name: 'Claude', logo: 'https://cdn.simpleicons.org/anthropic/6366f1', fallback: 'CLD' },
-  { name: 'Gemini', logo: 'https://cdn.simpleicons.org/googlegemini/6366f1', fallback: 'GEM' },
-  { name: 'Perplexity', logo: 'https://cdn.simpleicons.org/perplexity/6366f1', fallback: 'PPX' },
-  { name: 'Grok', logo: 'https://cdn.simpleicons.org/x/6366f1', fallback: 'GRK' },
-];
+import { getRoute } from '@/lib/route-registry';
+import { llmModels } from '@/lib/llm-models';
 
 const VALUE_PROPS = [
   { icon: Eye, title: 'Brand visibility', text: 'See whether your brand appears when buyers ask AI what to choose' },
@@ -26,7 +23,8 @@ const TRUST_SIGNALS = [
 ];
 
 export default function AIVisibilityPage() {
-  const navigate = useNavigate();
+  const router = useRouter();
+  const route = getRoute('aiVisibility');
   const [brandName, setBrandName] = useState('');
   const [website, setWebsite] = useState('');
   const [competitors, setCompetitors] = useState('');
@@ -51,7 +49,7 @@ export default function AIVisibilityPage() {
       const comps = competitors.split(',').map(c => c.trim()).filter(Boolean);
       const payload = { brand_name: brandName, website, competitors: comps };
       const { run_id } = await submitRun(payload);
-      navigate(`/report/${run_id}`);
+      router.push(`/report/${run_id}/`);
     } catch (err) {
       setErrors({ submit: `Something went wrong: ${err instanceof Error ? err.message : 'Unknown error'}` });
     } finally {
@@ -191,15 +189,13 @@ export default function AIVisibilityPage() {
               <div className="mt-6 border-t border-border pt-5">
                 <p className="mb-3 text-label">Analyzed across 5 AI assistants</p>
                 <div className="flex items-center gap-5">
-                  {AI_MODELS.map(m => (
+                  {llmModels.map(m => (
                     <div key={m.name} className="flex flex-col items-center gap-1.5">
-                      <img
+                      <Image
                         src={m.logo}
                         alt={`${m.name} logo`}
-                        className="h-6 w-6"
-                        onError={e => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden'); }}
+                        className="h-6 w-6 object-contain"
                       />
-                      <span className="hidden rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">{m.fallback}</span>
                       <span className="text-[11px] text-muted-foreground">{m.name}</span>
                     </div>
                   ))}
@@ -291,6 +287,26 @@ export default function AIVisibilityPage() {
             </p>
           </div>
         </motion.div>
+
+        <div className="mx-auto mt-12 grid max-w-5xl gap-4 sm:grid-cols-3">
+          {(route.facts || []).map((fact) => (
+            <div key={fact} className="card-surface-flat p-4">
+              <p className="text-sm leading-relaxed text-muted-foreground">{fact}</p>
+            </div>
+          ))}
+        </div>
+
+        <section className="mx-auto mt-12 max-w-3xl">
+          <h2 className="text-2xl font-bold tracking-tight text-foreground">AI visibility audit FAQs</h2>
+          <div className="mt-5 space-y-3">
+            {(route.faqs || []).map((faq) => (
+              <div key={faq.question} className="card-surface p-5">
+                <h3 className="text-base font-semibold text-foreground">{faq.question}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );
